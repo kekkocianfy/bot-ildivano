@@ -1,0 +1,15 @@
+{
+  "token": "",
+  "guild_id": 1494442669982879896,
+  "panel_channel_id": 1522691414138294464,
+  "applications_channel_id": 1547644470248349809,
+  "reviewer_role_id": 1505503949178933268,
+  "server_name": "Il Divano",
+  "panel_title": "Candidature Staff",
+  "panel_description": "Vuoi entrare nello staff della community?\n\nPremi il pulsante qui sotto e compila il modulo con attenzione.",
+  "ticket_panel_channel_id": 1547643592187707482,
+  "ticket_category_id": 1547640245715996712,
+  "ticket_support_role_id": 1505503949178933268,
+  "application_panel_color": 15844367,
+  "ticket_panel_color": 2450411
+}
