@@ -8,22 +8,11 @@ import discord
 from discord.ext import commands
 
 
-# ============================================================
-# PERCORSI - IMPORTANTE PER RAILWAY
-# ============================================================
-
-# Cartella in cui si trova realmente main.py
 BASE_DIR = Path(__file__).resolve().parent
 
-# Aggiunge la root del progetto agli import Python.
-# Serve anche per evitare problemi con Railway.
 if str(BASE_DIR) not in sys.path:
     sys.path.insert(0, str(BASE_DIR))
 
-
-# ============================================================
-# IMPORT FUNZIONI
-# ============================================================
 
 try:
     from functions.candidature import (
@@ -58,10 +47,6 @@ except ModuleNotFoundError as error:
     raise
 
 
-# ============================================================
-# LOG
-# ============================================================
-
 logging.basicConfig(
     level=logging.INFO,
     format="[%(asctime)s] [%(levelname)s] %(name)s: %(message)s",
@@ -69,10 +54,6 @@ logging.basicConfig(
 
 logger = logging.getLogger("IlDivano")
 
-
-# ============================================================
-# CONFIG.JSON
-# ============================================================
 
 CONFIG_PATH = BASE_DIR / "config.json"
 
@@ -94,15 +75,6 @@ except json.JSONDecodeError as error:
     )
 
 
-# ============================================================
-# RAILWAY VARIABLES
-# ============================================================
-
-# Su Railway:
-#
-# Variables -> DISCORD_TOKEN
-#
-# NON mettere il token direttamente nel codice.
 TOKEN = os.getenv("DISCORD_TOKEN")
 
 
@@ -119,22 +91,10 @@ if not TOKEN:
     )
 
 
-# ============================================================
-# INTENTS
-# ============================================================
-
 intents = discord.Intents.default()
-
-# Necessario per lavorare correttamente con i membri
 intents.members = True
-
-# Necessario per !clear e altri comandi con !
 intents.message_content = True
 
-
-# ============================================================
-# BOT
-# ============================================================
 
 class IlDivanoBot(commands.Bot):
 
@@ -147,18 +107,12 @@ class IlDivanoBot(commands.Bot):
             case_insensitive=True,
         )
 
-        # Evita che Discord ricrei i pannelli ogni volta
-        # che il websocket si riconnette.
         self.startup_panels_refreshed = False
 
 
     async def setup_hook(self):
 
         logger.info("Caricamento sistemi...")
-
-        # ====================================================
-        # CANDIDATURE
-        # ====================================================
 
         try:
             await setup_candidature_system(
@@ -178,10 +132,6 @@ class IlDivanoBot(commands.Bot):
             raise
 
 
-        # ====================================================
-        # TICKET
-        # ====================================================
-
         try:
             await setup_ticket_system(
                 self,
@@ -200,10 +150,6 @@ class IlDivanoBot(commands.Bot):
             raise
 
 
-        # ====================================================
-        # CLEAR
-        # ====================================================
-
         try:
             await setup_clear_system(
                 self
@@ -221,16 +167,8 @@ class IlDivanoBot(commands.Bot):
             raise
 
 
-# ============================================================
-# CREA BOT
-# ============================================================
-
 bot = IlDivanoBot()
 
-
-# ============================================================
-# BOT ONLINE
-# ============================================================
 
 @bot.event
 async def on_ready():
@@ -251,10 +189,6 @@ async def on_ready():
     )
 
 
-    # ========================================================
-    # EVITA DOPPIO REFRESH
-    # ========================================================
-
     if bot.startup_panels_refreshed:
 
         logger.info(
@@ -267,10 +201,6 @@ async def on_ready():
 
     bot.startup_panels_refreshed = True
 
-
-    # ========================================================
-    # PANNELLO CANDIDATURE
-    # ========================================================
 
     try:
 
@@ -291,10 +221,6 @@ async def on_ready():
         )
 
 
-    # ========================================================
-    # PANNELLO TICKET
-    # ========================================================
-
     try:
 
         await refresh_ticket_panel(
@@ -314,17 +240,12 @@ async def on_ready():
         )
 
 
-# ============================================================
-# ERRORI COMANDI
-# ============================================================
-
 @bot.event
 async def on_command_error(
     ctx,
     error
 ):
 
-    # Non risponde se qualcuno scrive un comando inesistente.
     if isinstance(
         error,
         commands.CommandNotFound
@@ -332,7 +253,6 @@ async def on_command_error(
         return
 
 
-    # Per !clear vogliamo evitare messaggi inutili nel canale.
     if ctx.command is not None:
 
         if ctx.command.name == "clear":
@@ -348,10 +268,6 @@ async def on_command_error(
     )
 
 
-# ============================================================
-# ERRORI GENERALI
-# ============================================================
-
 @bot.event
 async def on_error(
     event_method,
@@ -363,10 +279,6 @@ async def on_error(
         f"Errore Discord nell'evento: {event_method}"
     )
 
-
-# ============================================================
-# AVVIO BOT
-# ============================================================
 
 def start_bot():
 
@@ -401,10 +313,6 @@ def start_bot():
 
         raise
 
-
-# ============================================================
-# START
-# ============================================================
 
 if __name__ == "__main__":
     start_bot()
