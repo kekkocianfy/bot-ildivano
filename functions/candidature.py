@@ -10,11 +10,6 @@ from functions.ticket import send_interview_ticket_message
 DB_PATH = "applications.db"
 PANEL_MARKER = "Il Divano"
 
-
-# ============================================================
-# DATABASE
-# ============================================================
-
 def connect_db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
@@ -152,9 +147,6 @@ def close_application(message_id: int, status: str, reviewer_id: int) -> bool:
         return cursor.rowcount == 1
 
 
-# ============================================================
-# PANEL
-# ============================================================
 
 def build_panel_embed(config: dict) -> discord.Embed:
     server_name = config.get("server_name", "Il Divano")
@@ -207,7 +199,7 @@ async def delete_old_application_panels(
     bot: commands.Bot,
     channel: discord.TextChannel,
 ):
-    # 1) Prova a cancellare il messaggio esatto salvato nel DB.
+
     old_message_id = get_state("application_panel_message_id")
 
     if old_message_id:
@@ -217,8 +209,7 @@ async def delete_old_application_panels(
         except (discord.NotFound, discord.Forbidden, discord.HTTPException, ValueError):
             pass
 
-    # 2) Recupero extra: elimina eventuali pannelli duplicati lasciati da crash
-    #    o da un DB cancellato.
+
     try:
         async for message in channel.history(limit=100):
             if bot.user is None or message.author.id != bot.user.id:
@@ -237,15 +228,6 @@ async def delete_old_application_panels(
 
 
 async def refresh_application_panel(bot: commands.Bot, config: dict):
-    """
-    Ad ogni AVVIO del bot:
-    - elimina il pannello precedente;
-    - pubblica un pannello nuovo;
-    - salva l'ID del nuovo messaggio.
-
-    Le candidature già inviate NON vengono eliminate e i loro
-    pulsanti continuano a funzionare grazie alle persistent views.
-    """
     panel_channel_id = int(config.get("panel_channel_id", 0))
 
     if not panel_channel_id:
@@ -270,9 +252,6 @@ async def refresh_application_panel(bot: commands.Bot, config: dict):
     set_state("application_panel_message_id", str(message.id))
 
 
-# ============================================================
-# APPLICATION MODAL
-# ============================================================
 
 class ApplicationModal(discord.ui.Modal, title="Candidatura Staff"):
     nome = discord.ui.TextInput(
@@ -404,9 +383,6 @@ class ApplicationModal(discord.ui.Modal, title="Candidatura Staff"):
         )
 
 
-# ============================================================
-# PERSISTENT PUBLIC BUTTON
-# ============================================================
 
 class ApplicationPanelView(discord.ui.View):
     def __init__(self, bot: commands.Bot, config: dict):
@@ -447,9 +423,6 @@ class ApplicationPanelView(discord.ui.View):
         )
 
 
-# ============================================================
-# PERSISTENT REVIEW BUTTONS
-# ============================================================
 
 class ReviewView(discord.ui.View):
     def __init__(self, bot: commands.Bot, config: dict):
@@ -519,7 +492,7 @@ class ReviewView(discord.ui.View):
 
         status = "accepted" if accepted else "rejected"
 
-        # UPDATE atomico: evita che due revisori gestiscano insieme lo stesso bando.
+
         if not close_application(
             interaction.message.id,
             status,
@@ -544,7 +517,7 @@ class ReviewView(discord.ui.View):
 
         if applicant is not None:
             if accepted:
-                # NESSUN RUOLO automatico.
+
                 dm_sent = await send_interview_ticket_message(applicant)
             else:
                 try:
@@ -649,10 +622,6 @@ async def setup_candidature_system(
 ):
     init_db()
 
-    # Persistent Views.
-    #
-    # Essendo timeout=None + custom_id fisso, discord.py associa nuovamente
-    # i pulsanti ai callback dopo ogni riavvio del bot.
     bot.add_view(
         ApplicationPanelView(bot, config)
     )
