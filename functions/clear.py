@@ -8,17 +8,7 @@ class ClearCog(commands.Cog):
 
     @commands.command(name="clear")
     async def clear_messages(self, ctx: commands.Context, amount: int = None):
-        """
-        !clear NUMERO
 
-        Elimina:
-        - il numero di messaggi indicato
-        - il messaggio !clear stesso
-
-        Non invia nessuna conferma o risposta nel canale.
-        """
-
-        # Solo utenti con Gestisci Messaggi o Administrator.
         if not isinstance(ctx.author, discord.Member):
             return
 
@@ -26,7 +16,6 @@ class ClearCog(commands.Cog):
             ctx.author.guild_permissions.manage_messages
             or ctx.author.guild_permissions.administrator
         ):
-            # Nessun messaggio di errore: resta completamente silenzioso.
             try:
                 await ctx.message.delete()
             except discord.DiscordException:
@@ -40,11 +29,9 @@ class ClearCog(commands.Cog):
                 pass
             return
 
-        # Limite ragionevole per evitare cancellazioni accidentali gigantesche.
         amount = min(amount, 500)
 
         try:
-            # Cancella esattamente N messaggi PRIMA del comando.
             await ctx.channel.purge(
                 limit=amount,
                 before=ctx.message,
@@ -53,7 +40,6 @@ class ClearCog(commands.Cog):
         except discord.DiscordException:
             pass
 
-        # Cancella il comando stesso.
         try:
             await ctx.message.delete()
         except discord.DiscordException:
@@ -61,7 +47,6 @@ class ClearCog(commands.Cog):
 
     @clear_messages.error
     async def clear_messages_error(self, ctx: commands.Context, error):
-        # Anche in caso di sintassi errata, nessuna risposta.
         try:
             await ctx.message.delete()
         except discord.DiscordException:
