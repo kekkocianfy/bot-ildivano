@@ -157,7 +157,6 @@ def build_verify_embed():
     embed = discord.Embed(
         title="✅・VERIFICA",
         description=(
-            "Benvenuto su **Il Divano**.\n\n"
             "Per accedere al resto del server devi completare "
             "la verifica premendo il pulsante qui sotto."
         ),
