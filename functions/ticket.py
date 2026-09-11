@@ -9,10 +9,6 @@ DB_PATH = "tickets.db"
 TICKET_PANEL_MARKER = "Il Divano"
 
 
-# ============================================================
-# DATABASE / STATE
-# ============================================================
-
 def connect_db():
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
@@ -54,9 +50,6 @@ def set_state(key: str, value: str):
         conn.commit()
 
 
-# ============================================================
-# UTILS
-# ============================================================
 
 async def resolve_channel(bot: commands.Bot, channel_id: int):
     channel = bot.get_channel(channel_id)
@@ -110,10 +103,6 @@ def member_is_ticket_staff(member: discord.Member, config: dict) -> bool:
 
 
 async def send_interview_ticket_message(user: discord.abc.User) -> bool:
-    """
-    DM richiesto quando una candidatura viene accettata.
-    Deve contenere soltanto questa frase.
-    """
     try:
         await user.send("Apri un ticket per organizzare un colloquio.")
         return True
@@ -121,9 +110,6 @@ async def send_interview_ticket_message(user: discord.abc.User) -> bool:
         return False
 
 
-# ============================================================
-# EMBEDS
-# ============================================================
 
 def build_ticket_panel_embed(config: dict) -> discord.Embed:
     color_value = int(config.get("ticket_panel_color", 0x2563EB))
@@ -198,9 +184,6 @@ def build_ticket_open_embed(user: discord.Member) -> discord.Embed:
     return embed
 
 
-# ============================================================
-# PERSISTENT VIEWS
-# ============================================================
 
 class TicketPanelView(discord.ui.View):
     def __init__(self, bot: commands.Bot, config: dict):
@@ -247,7 +230,6 @@ class TicketPanelView(discord.ui.View):
             )
             return
 
-        # Controllo ticket già aperto dell'utente.
         for channel in category.text_channels:
             if get_ticket_owner_id(channel) == interaction.user.id:
                 await interaction.response.send_message(
@@ -380,7 +362,7 @@ class TicketControlView(discord.ui.View):
             )
             return
 
-        # Nessun messaggio pubblico extra.
+        
         await interaction.response.defer(ephemeral=True)
 
         try:
@@ -397,9 +379,6 @@ class TicketControlView(discord.ui.View):
                 pass
 
 
-# ============================================================
-# AUTO PANEL REFRESH
-# ============================================================
 
 async def delete_old_ticket_panels(
     bot: commands.Bot,
@@ -419,7 +398,6 @@ async def delete_old_ticket_panels(
         ):
             pass
 
-    # Recupero eventuali duplicati lasciati da crash/DB perso.
     try:
         async for message in channel.history(limit=150):
             if bot.user is None or message.author.id != bot.user.id:
@@ -466,7 +444,5 @@ async def refresh_ticket_panel(bot: commands.Bot, config: dict):
 async def setup_ticket_system(bot: commands.Bot, config: dict):
     init_db()
 
-    # View persistenti: pannello e pulsante di chiusura continuano
-    # a funzionare anche dopo il riavvio del processo.
     bot.add_view(TicketPanelView(bot, config))
     bot.add_view(TicketControlView(bot, config))
