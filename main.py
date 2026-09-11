@@ -27,12 +27,17 @@ try:
 
     from functions.clear import setup_clear_system
 
+    from functions.verify import (
+        setup_verify_system,
+        refresh_verify_panel,
+    )
+
 except ModuleNotFoundError as error:
     print("=" * 60)
     print("ERRORE IMPORT")
     print(error)
     print()
-    print("Controlla che il repository abbia questa struttura:")
+    print("Controlla la struttura del repository:")
     print()
     print("main.py")
     print("config.json")
@@ -42,6 +47,7 @@ except ModuleNotFoundError as error:
     print("    candidature.py")
     print("    ticket.py")
     print("    clear.py")
+    print("    verify.py")
     print("=" * 60)
 
     raise
@@ -167,6 +173,24 @@ class IlDivanoBot(commands.Bot):
             raise
 
 
+        try:
+            await setup_verify_system(
+                self,
+                CONFIG
+            )
+
+            logger.info(
+                "Sistema verifica caricato."
+            )
+
+        except Exception:
+            logger.exception(
+                "Errore caricamento sistema verifica."
+            )
+
+            raise
+
+
 bot = IlDivanoBot()
 
 
@@ -237,6 +261,25 @@ async def on_ready():
         logger.exception(
             "Errore durante il refresh "
             "del pannello ticket."
+        )
+
+
+    try:
+
+        await refresh_verify_panel(
+            bot,
+            CONFIG
+        )
+
+        logger.info(
+            "Pannello verifica aggiornato automaticamente."
+        )
+
+    except Exception:
+
+        logger.exception(
+            "Errore durante il refresh "
+            "del pannello verifica."
         )
 
 
