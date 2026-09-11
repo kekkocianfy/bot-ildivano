@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 
 
-VERIFY_PANEL_MARKER = "IL_DIVANO_VERIFY_PANEL"
+VERIFY_PANEL_MARKER = "Il Divano"
 
 
 class VerifyView(discord.ui.View):
